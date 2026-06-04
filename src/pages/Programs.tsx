@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AlertTriangle, ArrowRight, ClipboardList, Shield, Sparkles } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Shield, Sparkles } from 'lucide-react';
 import {
   AI_VIBE_CHECK_DESCRIPTION,
   AI_VIBE_CHECK_QUESTIONS,
