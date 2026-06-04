@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { getMe, refreshSession, setAuthToken } from '../services/api';
+import { isTauriApp } from '../lib/platform';
 import { useAuthStore } from '../store/authStore';
 
 export default function AuthBootstrap({ children }: { children: ReactNode }) {
@@ -15,6 +16,8 @@ export default function AuthBootstrap({ children }: { children: ReactNode }) {
           setAuthToken(token);
           const user = await getMe();
           if (!cancelled) setAuth(user, token);
+        } else if (isTauriApp()) {
+          // Desktop app: no HttpOnly cookies — skip refresh, show login
         } else {
           const data = await refreshSession();
           if (!cancelled) setAuth(data.user, data.access_token);

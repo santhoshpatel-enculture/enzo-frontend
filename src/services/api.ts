@@ -4,8 +4,16 @@
  * (see authSession) so reload keeps the signed-in session in this tab.
  */
 import { clearSession } from '../lib/authSession';
+import { apiFetch } from '../lib/http';
+import { isTauriApp, navigateToLogin } from '../lib/platform';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+/** Cookie refresh only works in the browser; Tauri uses Bearer tokens only. */
+function apiCredentials(requestCredentials?: RequestCredentials): RequestCredentials | undefined {
+  if (isTauriApp()) return 'omit';
+  return requestCredentials;
+}
 
 let _token: string | null = null;
 let _refreshing: Promise<string | null> | null = null;
@@ -26,9 +34,9 @@ async function refreshAccessToken(): Promise<string | null> {
   if (_refreshing) return _refreshing;
   _refreshing = (async () => {
     try {
-      const res = await fetch(`${API_BASE}/auth/refresh`, {
+      const res = await apiFetch(`${API_BASE}/auth/refresh`, {
         method: 'POST',
-        credentials: 'include',
+        credentials: apiCredentials('include'),
       });
       if (!res.ok) return null;
       const data = await res.json();
@@ -57,10 +65,10 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${_token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await apiFetch(`${API_BASE}${path}`, {
     ...options,
     headers,
-    credentials: options.credentials,
+    credentials: apiCredentials(options.credentials),
   });
 
   if (res.status === 401 && !retried && !path.includes('/auth/')) {
@@ -70,18 +78,14 @@ async function request<T>(
     }
     _token = null;
     clearSession();
-    if (!window.location.pathname.startsWith('/login')) {
-      window.location.href = '/login';
-    }
+    navigateToLogin();
     throw new Error('Unauthorized');
   }
 
   if (res.status === 401) {
     _token = null;
     clearSession();
-    if (!window.location.pathname.startsWith('/login')) {
-      window.location.href = '/login';
-    }
+    navigateToLogin();
     throw new Error('Unauthorized');
   }
 
@@ -95,11 +99,11 @@ async function request<T>(
 
 // Auth
 export async function login(email: string, password: string) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await apiFetch(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
-    credentials: 'include',
+    credentials: apiCredentials('include'),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: 'Login failed' }));
@@ -109,9 +113,9 @@ export async function login(email: string, password: string) {
 }
 
 export async function refreshSession() {
-  const res = await fetch(`${API_BASE}/auth/refresh`, {
+  const res = await apiFetch(`${API_BASE}/auth/refresh`, {
     method: 'POST',
-    credentials: 'include',
+    credentials: apiCredentials('include'),
   });
   if (!res.ok) throw new Error('Session expired');
   const data = await res.json();
@@ -120,9 +124,9 @@ export async function refreshSession() {
 }
 
 export async function logoutApi() {
-  await fetch(`${API_BASE}/auth/logout`, {
+  await apiFetch(`${API_BASE}/auth/logout`, {
     method: 'POST',
-    credentials: 'include',
+    credentials: apiCredentials('include'),
   });
   _token = null;
 }
@@ -204,7 +208,7 @@ export async function sendChatMessage(
   onChunk: (chunk: string) => void,
   onDone: (fullReply: string, convId: string) => void,
 ) {
-  const res = await fetch(`${API_BASE}/chat/message`, {
+  const res = await apiFetch(`${API_BASE}/chat/message`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -1,0 +1,68 @@
+# Build Enzo Windows MSI on Windows (WiX). MSI cannot be built on macOS.
+# Settings → Actions → General → Workflow permissions: Read and write.
+
+name: Build Windows MSI (Tauri)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - release
+    paths-ignore:
+      - '**.md'
+      - 'android/**'
+      - 'ios/**'
+
+jobs:
+  build-windows-msi:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build Windows MSI
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_API_URL: https://enzo-backend-vrlm.vercel.app/api
+          VITE_SHOW_DEMO_HINT: 'false'
+        with:
+          tagName: enzo-desktop-v__VERSION__
+          releaseName: Enzo Desktop v__VERSION__ (Windows MSI)
+          releaseBody: |
+            Windows x64 MSI installer for Enzo.
+            Publisher: Enculture
+            Developed by: santhosh-patel
+          releaseDraft: true
+          prerelease: false
+          args: --target x86_64-pc-windows-msvc --bundles msi
+
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: enzo-windows-x64-msi
+          path: |
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/msi/*.msi
+          if-no-files-found: error

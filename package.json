@@ -8,9 +8,24 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-pwa-assets": "pwa-assets-generator --config pwa-assets.config.ts"
+    "generate-pwa-assets": "pwa-assets-generator --config pwa-assets.config.ts",
+    "generate-android-icons": "node scripts/generate-android-icons.mjs",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build:mac": "tauri build --target aarch64-apple-darwin",
+    "tauri:build:win": "node scripts/build-windows-msi.mjs",
+    "tauri:build:win:msi": "node scripts/build-windows-msi.mjs",
+    "tauri:build:win:cross": "tauri build --runner cargo-xwin --target x86_64-pc-windows-msvc --bundles nsis",
+    "tauri:build:win:cross:nsis": "tauri build --runner cargo-xwin --target x86_64-pc-windows-msvc --bundles nsis"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/ios": "^8.4.0",
+    "@tauri-apps/api": "^2.11.0",
+    "@tauri-apps/plugin-http": "^2.5.9",
     "@xyflow/react": "^12.11.0",
     "autoprefixer": "^10.5.0",
     "framer-motion": "^12.40.0",
@@ -27,6 +42,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.3.0",
+    "@tauri-apps/cli": "^2.11.2",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

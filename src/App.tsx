@@ -1,4 +1,13 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
+import {
+  BrowserRouter,
+  HashRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useParams,
+} from 'react-router-dom';
+import { isTauriApp } from './lib/platform';
 import { useAuthStore } from './store/authStore';
 import AuthBootstrap from './components/AuthBootstrap';
 import PageWrapper from './components/PageWrapper';
@@ -49,10 +58,12 @@ function ProtectedRoute({ children, allowPasswordChange = false }: ProtectedRout
   return children;
 }
 
+const AppRouter = isTauriApp() ? HashRouter : BrowserRouter;
+
 export default function App() {
   return (
     <AuthBootstrap>
-      <BrowserRouter>
+      <AppRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
@@ -207,7 +218,7 @@ export default function App() {
 
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
-      </BrowserRouter>
+      </AppRouter>
     </AuthBootstrap>
   );
 }

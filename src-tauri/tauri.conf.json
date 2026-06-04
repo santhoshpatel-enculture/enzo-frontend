@@ -1,0 +1,58 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Enzo",
+  "version": "0.1.0",
+  "identifier": "com.enculture.ai",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Enzo — Enculture AI Assistant",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' asset: tauri: https://asset.localhost http://asset.localhost ipc: http://ipc.localhost; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://enzo-backend-vrlm.vercel.app https://*.vercel.app https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https: asset:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "Enculture",
+    "copyright": "Copyright © 2026 Enculture. Developed by santhosh-patel.",
+    "shortDescription": "Enculture AI Assistant",
+    "longDescription": "Enzo — Enculture AI Assistant. Developed by santhosh-patel for Enculture.",
+    "category": "Productivity",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper",
+        "silent": true
+      },
+      "wix": {
+        "upgradeCode": "bfc454c6-f98e-51f0-a4e5-a874a32c00e0",
+        "language": "en-US"
+      }
+    },
+    "android": {
+      "debugApplicationIdSuffix": ".debug"
+    }
+  }
+}
